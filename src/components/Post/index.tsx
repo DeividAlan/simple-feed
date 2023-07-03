@@ -24,7 +24,10 @@ interface iPost {
 }
 
 export function Post({author, publishedAt, content}: iPost) {
-  const [comments, setComments] = useState([ 1, 2, 3 ]);
+  const [comments, setComments] = useState([ 
+    'Muito bom Devon, parabéns!! 👏👏'
+  ]);
+  const [newCommentText, setNewCommentText] = useState('');
 
   const publishedDateFormatted = format(
     publishedAt, "d' de 'LLLL' às 'HH':'mm'h'", { locale: ptBR }
@@ -34,9 +37,13 @@ export function Post({author, publishedAt, content}: iPost) {
     publishedAt, { locale: ptBR, addSuffix: true }
   );
 
-  function handleCreateNewComment(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setComments(prevState => [...prevState, (prevState.length + 1)]);
+  function handleCreateNewComment() {
+    setComments(prevState => [...prevState, newCommentText]);
+    setNewCommentText('');
+  }
+
+  function deleteComment(comment: string) {
+    setComments(prevState => prevState.filter(c => c !== comment))
   }
 
   return (
@@ -71,16 +78,33 @@ export function Post({author, publishedAt, content}: iPost) {
           )
         })}
       </div>
-      <form onSubmit={handleCreateNewComment} className={styles.commentForm}>
+      <div className={styles.commentForm}>
         <strong>Deixe seu feedback</strong>
-        <textarea placeholder='Escreva um comentário'/>
+        <textarea 
+          value={newCommentText} 
+          onChange={({target}) => setNewCommentText(target.value)} 
+          placeholder='Escreva um comentário'
+          required
+        />
         <footer>
-          <button type='submit'>Publicar</button>
+          <button 
+            type='submit' 
+            onClick={handleCreateNewComment}
+            disabled={newCommentText === ''}
+          >
+            Publicar
+          </button>
         </footer>
-      </form>
+      </div>
       <div className={styles.commentList}>
-        {comments.map(comments => {
-          return (<Comment key={comments}/>);          
+        {comments.map((comments) => {
+          return (
+            <Comment 
+              key={comments} 
+              commentText={comments} 
+              onDeleteComment={deleteComment}
+            />
+          );          
         })}
       </div>
     </article>
